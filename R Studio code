@@ -1,0 +1,217 @@
+---
+title: "Bellebeat V2"
+author: "D Abeka"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+---
+title: "Bellabeat"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+You can include R code in the document as follows:
+
+```{r library}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(skimr)
+library(janitor)
+library(lubridate)
+```
+
+## Importing and viewing datasets
+
+```{r Activity.csv, echo=FALSE}
+Activity <- read_csv("~/Desktop/Bellabeat Case Study/dailyActivity_merged.csv")
+head(Activity)
+colnames(Activity)
+str(Activity)
+```
+
+```{r Calories.csv, echo=FALSE}
+Calories <- read_csv("~/Desktop/Bellabeat Case Study/dailyCalories_merged.csv")
+head(Calories)
+colnames(Calories)
+str(Calories)
+```
+
+```{r intersity.csv, echo=FALSE}
+Intensity <- read_csv("~/Desktop/Bellabeat Case Study/dailyIntensities_merged.csv")
+head(Intensity)
+colnames(Intensity)
+str(Intensity)
+```
+
+```{r Steps.csv, echo=FALSE}
+Steps <- read_csv("~/Desktop/Bellabeat Case Study/dailySteps_merged.csv")
+head(Steps)
+colnames(Steps)
+str(Steps)
+```
+
+```{r dailySleep.csv, echo=FALSE}
+dailySleep <- read_csv("~/Desktop/Bellabeat Case Study/sleepDay_merged.csv")
+head(dailySleep)
+colnames(dailySleep)
+str(dailySleep)
+```
+
+## Unique dataset
+
+this tells us how many people's information were used in each dataset
+
+```{r viewactivity, echo=FALSE}
+View(Activity)
+length(unique(Activity$Id))
+```
+
+```{r viewCalories, echo=FALSE}
+View(Calories)
+length(unique(Calories$Id))
+```
+
+```{r viewIntensity, echo=FALSE}
+View(Intensity)
+length(unique(Intensity$Id))
+```
+
+```{r viewSteps, echo=FALSE}
+View(Steps)
+length(unique(Steps$Id))
+```
+```{r viewDailySleep, echo=FALSE}
+View(dailySleep)
+length(unique(dailySleep$Id))
+```
+
+#CLEANING THE DATA \## find any NA's in the dataset ####sum because without it the code will return false for all those that don't have NA's for each column and row. the sum all the NA's
+
+
+```{r summaryActivity, echo=FALSE}
+summary(Activity)
+sum(is.na(Activity)) 
+```
+
+```{r summaryCalories, echo=FALSE}
+summary(Calories)
+sum(is.na(Calories)) 
+```
+
+```{r summaryIntensity, echo=FALSE}
+summary(Intensity)
+sum(is.na(Intensity)) 
+```
+
+```{r summarydailySleep, echo=FALSE}
+summary(dailySleep)
+sum(is.na(dailySleep)) 
+```
+
+we can see that there are no NA's
+
+## find any duplicates in the dataset
+
+```{r echo=FALSE}
+Activity[duplicated(Activity),]
+```
+
+```{r echo=FALSE}
+Calories[duplicated(Calories),0]
+```
+
+```{r echo=FALSE}
+Intensity[duplicated(Intensity),0]
+```
+
+```{r echo=FALSE}
+dailySleep[duplicated(dailySleep),0]
+```
+
+we will drop the duplicated rows and have the new table over the dailySleep dataset
+
+```{r echo=FALSE}
+dailySleep <- dplyr::distinct(dailySleep)
+dailySleep[duplicated(dailySleep),0]
+```
+
+Next, to convert the data type of the activity dates to data
+
+```{r echo=FALSE}
+Activity$ActivityDate = as.POSIXct(Activity$ActivityDate, format="%m/%d/%Y" , tz=Sys.timezone())
+head(Activity)
+```
+
+```{r echo=FALSE}
+Calories$ActivityDay = as.POSIXct(Calories$ActivityDay, format="%m/%d/%Y" , tz=Sys.timezone())
+head(Calories)
+```
+
+```{r echo=FALSE}
+Intensity$ActivityDay = as.POSIXct(Intensity$ActivityDay, format="%m/%d/%Y" , tz=Sys.timezone())
+head(Intensity)
+```
+
+```{r echo=FALSE}
+dailySleep$SleepDay = as.POSIXct(dailySleep$SleepDay, format="%m/%d/%Y" , tz=Sys.timezone())
+head(Intensity)
+```
+
+```{r echo=FALSE}
+combined_data_Sleep_Act <- merge(dailySleep, Activity , by="Id", all=TRUE)
+n_distinct(combined_data$Id)
+```
+
+```{r echo=FALSE}
+ggplot(data=Activity, aes(x=TotalSteps, y=SedentaryMinutes)) +
+  geom_point() +
+  geom_smooth() +
+  labs(title="Total Steps vs Sedentary Minutes")
+```
+
+the date shows that there is a negative correlation between Steps and Sedentary meaning that on average the less steps taken, the more Sedentary time once has.
+
+```{r echo=FALSE}
+ggplot(data=dailySleep, aes(x=TotalMinutesAsleep, y=TotalTimeInBed)) +
+  geom_point() +
+  geom_smooth() +
+  labs(title="Minutes Asleep vs Minutes in Bed")
+```
+
+the data shows that the more time spent 'in-bed', the more time one sleeps
+
+```{r echo=FALSE}
+ggplot(data=Activity, aes(x=TotalSteps, y=Calories)) +
+  geom_point() +
+  geom_smooth() +
+  labs(title="Total Steps vs Calories")
+```
+
+the data points to a direct/positive correlation between total steps taken and total calories burnt. this means that the more takes one take, the more calories they burn.
+
+```{r echo=FALSE}
+ggplot(data=Activity, aes(x=VeryActiveMinutes)) +
+  geom_histogram() +
+  labs(title="Count of very active minutes")
+```
+
+##RECOMMENDATION
+
+A lot of people in our sample sit for a longer period of time without being active. Bellabeat can send notifications to users who are inactive for an hour to reminder them to move or to take steps
+
+Belleabeat should ask its users if they want to receive an hour notification of how many calories they have burnt. For someone like me who wants to loose weigh, this sort of reminder will motivate me to, at least, take steps or go to the gym.
+
+the app should allow users to set their bedtime and a notification to should be sent based on the set-time when it is almost time to go to bed.
+
+the data shows that users are not very active so the should encourage people who are active of efforts they need to take to get to the very active stage either by notifying them on how many steps they need to take to get to the very active stage.
+
+Limitations: the gender of the sample collected would help with the analysis of this company as the data doesnt state if the dataset is for males or females. a more in-depth study will be required to tailor fit the recommendations to Bellabeat thus the recommendations stated about should be used with caution.
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
